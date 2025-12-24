@@ -6,11 +6,9 @@ export class RetweetsService {
   constructor(private prisma: PrismaService) {}
 
   async retweet(userId: number, postId: number) {
-    // 1. Check if post exists
     const post = await this.prisma.post.findUnique({ where: { id: postId } });
     if (!post) throw new NotFoundException('Post not found');
 
-    // 2. Check for existing retweet using composite key userId_postId
     const existing = await this.prisma.retweet.findUnique({
       where: {
         userId_postId: { userId, postId },
@@ -18,7 +16,6 @@ export class RetweetsService {
     });
     if (existing) throw new ConflictException('Already retweeted this post');
 
-    // 3. Create (cast 'as any' to fix ESLint unsafe return)
     return (await this.prisma.retweet.create({
       data: { userId, postId },
     })) as any;

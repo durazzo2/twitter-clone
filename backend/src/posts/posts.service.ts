@@ -10,10 +10,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 export class PostsService {
   constructor(private prisma: PrismaService) {}
 
-  /**
-   * Create a new post (tweet)
-   * The authorId comes from the validated JWT token
-   */
+
   async create(authorId: number, dto: CreatePostDto) {
     return (await this.prisma.post.create({
       data: {
@@ -29,12 +26,10 @@ export class PostsService {
           },
         },
       },
-    })) as any; // Resolves ESLint: Unsafe return of a value of type any
+    })) as any;
   }
 
-  /**
-   * Fetch all posts with author info and counts
-   */
+
   async findAll() {
     return this.prisma.post.findMany({
       include: {
@@ -58,9 +53,7 @@ export class PostsService {
     });
   }
 
-  /**
-   * Find a single post by ID
-   */
+
   async findOne(id: number) {
     const post = await this.prisma.post.findUnique({
       where: { id },
@@ -82,14 +75,10 @@ export class PostsService {
     return post;
   }
 
-  /**
-   * Securely remove a post
-   * Checks if the requester (userId) is the actual author
-   */
+
   async remove(id: number, userId: number) {
     const post = await this.findOne(id);
 
-    // SECURITY CHECK: Compare authorId in DB with userId from JWT
     if (post.authorId !== userId) {
       throw new ForbiddenException('You can only delete your own posts');
     }

@@ -14,10 +14,8 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
 
-    // 1. Find user by email (using the method we confirmed exists in your UsersService)
     const user = await this.usersService.findByEmail(email);
 
-    // 2. Verify user exists and compare hashed password
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');
     }
@@ -27,14 +25,12 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    // 3. Create JWT payload
     const payload = {
       sub: user.id,
       email: user.email,
       username: user.username
     };
 
-    // 4. Return the access token and basic user info
     return {
       user: {
         id: user.id,
