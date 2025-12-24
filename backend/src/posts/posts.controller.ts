@@ -3,58 +3,64 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
+  UseGuards,
+  Req,
   ParseIntPipe,
-  Query,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto'
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
+  /**
+   * Create a new Tweet
+   * Protected: Requires valid JWT in Authorization header
+   */
+  @UseGuards(AuthGuard('jwt'))
   @Post()
-  create(@Body() createPostDto: CreatePostDto) {
-    return this.postsService.create(createPostDto);
+  @HttpCode(HttpStatus.CREATED)
+  async create(@Req() req, @Body() createPostDto: CreatePostDto) {
+    // req.user.id is populated by your JwtStrategy validate() method
+    return this.postsService.create(req.user.id, createPostDto);
   }
 
+  /**
+   * Fetch all Tweets for the global feed
+   * Public: Anyone can view tweets
+   */
   @Get()
-  findAll(@Query('authorId', ParseIntPipe) authorId?: number) {
-    if (authorId) {
-      return this.postsService.findByAuthor(authorId);
-    }
+  async findAll() {
     return this.postsService.findAll();
   }
 
+  /**
+   * Fetch a specific Tweet by ID
+   * Public
+   */
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.postsService.findOne(id);
   }
 
-  @Get(':id/likes')
-  getPostLikes(@Param('id', ParseIntPipe) id: number) {
-    return this.postsService.getPostLikes(id);
-  }
-
-  @Get(':id/retweets')
-  getPostRetweets(@Param('id', ParseIntPipe) id: number) {
-    return this.postsService.getPostRetweets(id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updatePostDto: UpdatePostDto,
-  ) {
-    return this.postsService.update(id, updatePostDto);
-  }
-
+  /**
+   * Delete a Tweet
+   * Protected: Only the author of the tweet can delete it
+   */
+  @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.postsService.remove(id);
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(
+    @Req() req,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    // We pass both IDs to the service to verify ownership
+    return this.postsService.remove(id, req.user.id);
   }
 }

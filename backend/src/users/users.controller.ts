@@ -1,29 +1,19 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  ParseIntPipe,
+  Controller, Get, Post, Body, Patch, Delete,
+  UseGuards, Req, Param, ParseIntPipe, ForbiddenException
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
+  @Post('register')
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
   }
 
   @Get(':id')
@@ -31,36 +21,25 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
-  @Get('username/:username')
-  findByUsername(@Param('username') username: string) {
-    return this.usersService.findByUsername(username);
-  }
-
-  @Get(':id/posts')
-  getUserPosts(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.getUserPosts(id);
-  }
-
-  @Get(':id/followers')
-  getUserFollowers(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.getUserFollowers(id);
-  }
-
-  @Get(':id/following')
-  getUserFollowing(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.getUserFollowing(id);
-  }
-
+  @UseGuards(AuthGuard('jwt'))
   @Patch(':id')
-  update(
+  async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
+    @Req() req
   ) {
+    if (req.user.id !== id) {
+      throw new ForbiddenException('You can only update your own profile');
+    }
     return this.usersService.update(id, updateUserDto);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
+  async remove(@Param('id', ParseIntPipe) id: number, @Req() req) {
+    if (req.user.id !== id) {
+      throw new ForbiddenException('You can only delete your own account');
+    }
     return this.usersService.remove(id);
   }
 }

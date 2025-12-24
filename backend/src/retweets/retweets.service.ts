@@ -1,31 +1,22 @@
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException
-} from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateRetweetDto } from './dto/create-retweet.dto';
 
 @Injectable()
 export class RetweetsService {
   constructor(private prisma: PrismaService) {}
 
-  async retweet(dto: CreateRetweetDto) {
-    const { userId, postId } = dto;
-
+  async retweet(userId: number, postId: number) {
     // 1. Check if post exists
-    const post = await this.prisma.post.findUnique({
-      where: { id: postId },
-    });
+    const post = await this.prisma.post.findUnique({ where: { id: postId } });
     if (!post) throw new NotFoundException('Post not found');
 
-    // 2. Check for existing retweet
+    // 2. Check for existing retweet using composite key userId_postId
     const existing = await this.prisma.retweet.findUnique({
       where: {
         userId_postId: { userId, postId },
       },
     });
-    if (existing) throw new ConflictException('Post already retweeted');
+    if (existing) throw new ConflictException('Already retweeted this post');
 
     // 3. Create (cast 'as any' to fix ESLint unsafe return)
     return (await this.prisma.retweet.create({
@@ -33,16 +24,19 @@ export class RetweetsService {
     })) as any;
   }
 
-  async undoRetweet(dto: CreateRetweetDto) {
-    const { userId, postId } = dto;
-
+  async undoRetweet(userId: number, postId: number) {
     const existing = await this.prisma.retweet.findUnique({
-      where: { userId_postId: { userId, postId } },
+      where: {
+        userId_postId: { userId, postId },
+      },
     });
+
     if (!existing) throw new NotFoundException('Retweet not found');
 
     return await this.prisma.retweet.delete({
-      where: { userId_postId: { userId, postId } },
+      where: {
+        userId_postId: { userId, postId },
+      },
     });
   }
 
@@ -51,36 +45,7 @@ export class RetweetsService {
       where: { postId },
       include: {
         user: {
-          select: {
-            id: true,
-            username: true,
-            avatarUrl: true,
-          },
-        },
-      },
-    });
-  }
-
-  async getRetweetsByUser(userId: number) {
-    return this.prisma.retweet.findMany({
-      where: { userId },
-      include: {
-        post: {
-          include: {
-            author: {
-              select: {
-                id: true,
-                username: true,
-                avatarUrl: true,
-              },
-            },
-            _count: {
-              select: {
-                likes: true,
-                retweets: true,
-              },
-            },
-          },
+          select: { id: true, username: true, avatarUrl: true },
         },
       },
     });

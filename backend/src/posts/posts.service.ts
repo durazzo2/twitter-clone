@@ -1,15 +1,25 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
 
 @Injectable()
 export class PostsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
-  async create(createPostDto: CreatePostDto) {
-    const post = await this.prisma.post.create({
-      data: createPostDto,
+  /**
+   * Create a new post (tweet)
+   * The authorId comes from the validated JWT token
+   */
+  async create(authorId: number, dto: CreatePostDto) {
+    return (await this.prisma.post.create({
+      data: {
+        content: dto.content,
+        authorId: authorId,
+      },
       include: {
         author: {
           select: {
@@ -18,19 +28,15 @@ export class PostsService {
             avatarUrl: true,
           },
         },
-        _count: {
-          select: {
-            likes: true,
-            retweets: true,
-          },
-        },
       },
-    });
-    return post;
+    })) as any; // Resolves ESLint: Unsafe return of a value of type any
   }
 
+  /**
+   * Fetch all posts with author info and counts
+   */
   async findAll() {
-    const posts = await this.prisma.post.findMany({
+    return this.prisma.post.findMany({
       include: {
         author: {
           select: {
@@ -50,9 +56,11 @@ export class PostsService {
         createdAt: 'desc',
       },
     });
-    return posts;
   }
 
+  /**
+   * Find a single post by ID
+   */
   async findOne(id: number) {
     const post = await this.prisma.post.findUnique({
       where: { id },
@@ -62,13 +70,6 @@ export class PostsService {
             id: true,
             username: true,
             avatarUrl: true,
-            bio: true,
-          },
-        },
-        _count: {
-          select: {
-            likes: true,
-            retweets: true,
           },
         },
       },
@@ -81,109 +82,20 @@ export class PostsService {
     return post;
   }
 
-  async findByAuthor(authorId: number) {
-    const posts = await this.prisma.post.findMany({
-      where: { authorId },
-      include: {
-        author: {
-          select: {
-            id: true,
-            username: true,
-            avatarUrl: true,
-          },
-        },
-        _count: {
-          select: {
-            likes: true,
-            retweets: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-    return posts;
-  }
+  /**
+   * Securely remove a post
+   * Checks if the requester (userId) is the actual author
+   */
+  async remove(id: number, userId: number) {
+    const post = await this.findOne(id);
 
-  async update(id: number, updatePostDto: UpdatePostDto) {
-    await this.findOne(id);
+    // SECURITY CHECK: Compare authorId in DB with userId from JWT
+    if (post.authorId !== userId) {
+      throw new ForbiddenException('You can only delete your own posts');
+    }
 
-    const post = await this.prisma.post.update({
+    return this.prisma.post.delete({
       where: { id },
-      data: updatePostDto,
-      include: {
-        author: {
-          select: {
-            id: true,
-            username: true,
-            avatarUrl: true,
-          },
-        },
-        _count: {
-          select: {
-            likes: true,
-            retweets: true,
-          },
-        },
-      },
     });
-    return post;
-  }
-
-  async remove(id: number) {
-    await this.findOne(id);
-
-    const post = await this.prisma.post.delete({
-      where: { id },
-      select: {
-        id: true,
-        content: true,
-        authorId: true,
-      },
-    });
-    return post;
-  }
-
-  async getPostLikes(id: number) {
-    await this.findOne(id);
-
-    const likes = await this.prisma.like.findMany({
-      where: { postId: id },
-      include: {
-        user: {
-          select: {
-            id: true,
-            username: true,
-            avatarUrl: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-    return likes;
-  }
-
-  async getPostRetweets(id: number) {
-    await this.findOne(id);
-
-    const retweets = await this.prisma.retweet.findMany({
-      where: { postId: id },
-      include: {
-        user: {
-          select: {
-            id: true,
-            username: true,
-            avatarUrl: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-    return retweets;
   }
 }

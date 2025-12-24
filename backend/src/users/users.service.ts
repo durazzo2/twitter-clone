@@ -1,231 +1,67 @@
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Prisma } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
+    const { password, ...userData } = createUserDto;
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     try {
       return (await this.prisma.user.create({
-        data: createUserDto,
+        data: { ...userData, password: hashedPassword },
         select: {
-          id: true,
-          email: true,
-          username: true,
-          password: true,
-          bio: true,
-          avatarUrl: true,
-          createdAt: true,
-          updatedAt: true,
-          _count: {
-            select: {
-              posts: true,
-              followers: true,
-              following: true,
-            },
-          },
+          id: true, email: true, username: true, bio: true, avatarUrl: true, createdAt: true,
+          _count: { select: { posts: true, followers: true, following: true } },
         },
-      }));
+      })) as any;
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ConflictException('Email or username already exists');
-        }
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        throw new ConflictException('Email or username already exists');
       }
       throw error;
     }
-  }
-
-  async findAll() {
-    return this.prisma.user.findMany({
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        bio: true,
-        avatarUrl: true,
-        createdAt: true,
-        updatedAt: true,
-        _count: {
-          select: {
-            posts: true,
-            followers: true,
-            following: true,
-          },
-        },
-      },
-    });
   }
 
   async findOne(id: number) {
     const user = await this.prisma.user.findUnique({
       where: { id },
       select: {
-        id: true,
-        email: true,
-        username: true,
-        bio: true,
-        avatarUrl: true,
-        createdAt: true,
-        updatedAt: true,
-        _count: {
-          select: {
-            posts: true,
-            followers: true,
-            following: true,
-          },
-        },
+        id: true, email: true, username: true, bio: true, avatarUrl: true,
+        _count: { select: { posts: true, followers: true, following: true } },
       },
     });
-
-    if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
-    }
-
-    return user;
-  }
-
-  async findByUsername(username: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { username },
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        bio: true,
-        avatarUrl: true,
-        createdAt: true,
-        updatedAt: true,
-        _count: {
-          select: {
-            posts: true,
-            followers: true,
-            following: true,
-          },
-        },
-      },
-    });
-
-    if (!user) {
-      throw new NotFoundException(`User with username ${username} not found`);
-    }
-
+    if (!user) throw new NotFoundException(`User #${id} not found`);
     return user;
   }
 
   async findByEmail(email: string) {
-    return this.prisma.user.findUnique({
-      where: { email },
-    });
-  }
-
-  async getUserPosts(id: number) {
-    await this.findOne(id);
-
-    return this.prisma.post.findMany({
-      where: { authorId: id },
-      include: {
-        author: {
-          select: {
-            id: true,
-            username: true,
-            avatarUrl: true,
-          },
-        },
-        _count: {
-          select: {
-            likes: true,
-            retweets: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-  }
-
-  async getUserFollowers(id: number) {
-    await this.findOne(id);
-
-    return this.prisma.follow.findMany({
-      where: { followingId: id },
-      include: {
-        follower: {
-          select: {
-            id: true,
-            username: true,
-            bio: true,
-            avatarUrl: true,
-          },
-        },
-      },
-    });
-  }
-
-  async getUserFollowing(id: number) {
-    await this.findOne(id);
-
-    return this.prisma.follow.findMany({
-      where: { followerId: id },
-      include: {
-        following: {
-          select: {
-            id: true,
-            username: true,
-            bio: true,
-            avatarUrl: true,
-          },
-        },
-      },
-    });
+    return this.prisma.user.findUnique({ where: { email } });
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    await this.findOne(id);
+    if (updateUserDto.password) {
+      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+    }
 
     try {
       return await this.prisma.user.update({
         where: { id },
         data: updateUserDto,
-        select: {
-          id: true,
-          email: true,
-          username: true,
-          bio: true,
-          avatarUrl: true,
-          createdAt: true,
-          updatedAt: true,
-        },
+        select: { id: true, email: true, username: true, bio: true, avatarUrl: true },
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ConflictException('Email or username already exists');
-        }
-      }
-      throw error;
+      throw new ConflictException('Update failed - possible duplicate username/email');
     }
   }
 
   async remove(id: number) {
-    await this.findOne(id);
-
-    return this.prisma.user.delete({
-      where: { id },
-      select: {
-        id: true,
-        email: true,
-        username: true,
-      },
-    });
+    return this.prisma.user.delete({ where: { id } });
   }
 }
