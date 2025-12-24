@@ -44,7 +44,7 @@ model Post {
 }
 
 model Like {
-  id        String   @id @default(uuid())
+  // id        Int      @id @default(autoincrement())
   userId    Int
   postId    Int
   createdAt DateTime @default(now())
@@ -53,13 +53,13 @@ model Like {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, postId])
+  @@id([userId, postId])
   @@index([postId])
   @@index([userId])
 }
 
 model Retweet {
-  id        String   @id @default(uuid())
+  id        Int      @id @default(autoincrement())
   userId    Int
   postId    Int
   createdAt DateTime @default(now())
@@ -75,7 +75,7 @@ model Retweet {
 }
 
 model Follow {
-  id          String   @id @default(uuid())
+  id          Int      @id @default(autoincrement())
   followerId  Int
   followingId Int
   createdAt   DateTime @default(now())
