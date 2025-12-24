@@ -59,7 +59,7 @@ model Like {
 }
 
 model Retweet {
-  id        Int      @id @default(autoincrement())
+  // id        Int      @id @default(autoincrement())
   userId    Int
   postId    Int
   createdAt DateTime @default(now())
@@ -68,7 +68,7 @@ model Retweet {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, postId])
+  @@id([userId, postId])
   @@index([postId])
   @@index([userId])
   @@index([createdAt])
