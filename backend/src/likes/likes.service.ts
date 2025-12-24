@@ -20,7 +20,6 @@ export class LikesService {
     const existing = await this.prisma.like.findUnique({
       where: {
         userId_postId: {
-          // Or simply 'userId_postId' depending on naming
           userId: Number(userId),
           postId: Number(postId),
         },
