@@ -25,28 +25,41 @@ export class PostsService {
     });
   }
 
-  async findAll() {
-    return this.prisma.post.findMany({
+  async findAll(currentUserId?: number) {
+    const posts = await this.prisma.post.findMany({
       include: {
         author: {
-          select: {
-            id: true,
-            username: true,
-            avatarUrl: true,
-          },
+          select: { id: true, username: true, avatarUrl: true }
         },
+        // 1. Get the total number of likes
         _count: {
           select: {
             likes: true,
-            retweets: true,
+            Comment: true,
+            retweets: true
           },
         },
+        // 2. Check if the CURRENT user has a record in the Like table
+        likes: currentUserId ? {
+          where: { userId: currentUserId },
+          select: { userId: true },
+        } : false,
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: { createdAt: 'desc' },
     });
+
+    // 3. Transform the Prisma output into the format your Next.js expects
+    return posts.map((post) => ({
+      ...post,
+      likesCount: post._count.likes,
+      commentsCount: post._count.Comment,
+      retweetsCount: post._count.retweets,
+      // If the likes array has any items, it means the current user liked it
+      isLiked: post.likes && post.likes.length > 0,
+    }));
   }
+
+
 
   async findOne(id: number) {
     const post = await this.prisma.post.findUnique({

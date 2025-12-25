@@ -65,9 +65,12 @@ export class PostsController {
     return this.postsService.create(req.user.id, createPostDto, imageUrl);
   }
 
+  // posts.controller.ts
   @Get()
-  async findAll() {
-    return this.postsService.findAll();
+  // Use a custom logic to allow guests but identify logged-in users
+  async findAll(@Req() req) {
+    // If you use a custom 'OptionalJwtGuard', req.user will be populated or null
+    return this.postsService.findAll(req.user?.id);
   }
 
   @Get(':id')
