@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -17,12 +21,20 @@ export class UsersService {
       return (await this.prisma.user.create({
         data: { ...userData, password: hashedPassword },
         select: {
-          id: true, email: true, username: true, bio: true, avatarUrl: true, createdAt: true,
+          id: true,
+          email: true,
+          username: true,
+          bio: true,
+          avatarUrl: true,
+          createdAt: true,
           _count: { select: { posts: true, followers: true, following: true } },
         },
       })) as any;
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
         throw new ConflictException('Email or username already exists');
       }
       throw error;
@@ -33,7 +45,11 @@ export class UsersService {
     const user = await this.prisma.user.findUnique({
       where: { id },
       select: {
-        id: true, email: true, username: true, bio: true, avatarUrl: true,
+        id: true,
+        email: true,
+        username: true,
+        bio: true,
+        avatarUrl: true,
         _count: { select: { posts: true, followers: true, following: true } },
       },
     });
@@ -54,14 +70,78 @@ export class UsersService {
       return await this.prisma.user.update({
         where: { id },
         data: updateUserDto,
-        select: { id: true, email: true, username: true, bio: true, avatarUrl: true },
+        select: {
+          id: true,
+          email: true,
+          username: true,
+          bio: true,
+          avatarUrl: true,
+        },
       });
     } catch (error) {
-      throw new ConflictException('Update failed - possible duplicate username/email');
+      throw new ConflictException(
+        'Update failed - possible duplicate username/email',
+      );
     }
   }
 
   async remove(id: number) {
     return this.prisma.user.delete({ where: { id } });
+  }
+
+  async followUser(followerId: number, followingId: number) {
+    if (followerId === followingId) {
+      throw new ConflictException('You cannot follow yourself');
+    }
+
+    const followingUser = await this.prisma.user.findUnique({
+      where: { id: followingId },
+    });
+    if (!followingUser) {
+      throw new NotFoundException(`User #${followingId} not found`);
+    }
+
+    try {
+      return await this.prisma.follow.create({
+        data: {
+          followerId,
+          followingId,
+        },
+        include: {
+          following: {
+            select: { id: true, username: true, avatarUrl: true },
+          },
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException('You are already following this user');
+      }
+      throw error;
+    }
+  }
+
+  async unfollowUser(followerId: number, followingId: number) {
+    try {
+      return await this.prisma.follow.delete({
+        where: {
+          followerId_followingId: {
+            followerId: followerId,
+            followingId: followingId,
+          },
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('You are not following this user');
+      }
+      throw error;
+    }
   }
 }

@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 
@@ -10,11 +6,11 @@ import { CreatePostDto } from './dto/create-post.dto';
 export class PostsService {
   constructor(private prisma: PrismaService) {}
 
-
-  async create(authorId: number, dto: CreatePostDto) {
-    return (await this.prisma.post.create({
+  async create(authorId: number, dto: CreatePostDto, imageUrl?: string) {
+    return await this.prisma.post.create({
       data: {
         content: dto.content,
+        imageUrl: imageUrl,
         authorId: authorId,
       },
       include: {
@@ -26,9 +22,8 @@ export class PostsService {
           },
         },
       },
-    })) as any;
+    });
   }
-
 
   async findAll() {
     return this.prisma.post.findMany({
@@ -53,7 +48,6 @@ export class PostsService {
     });
   }
 
-
   async findOne(id: number) {
     const post = await this.prisma.post.findUnique({
       where: { id },
@@ -74,7 +68,6 @@ export class PostsService {
 
     return post;
   }
-
 
   async remove(id: number, userId: number) {
     const post = await this.findOne(id);

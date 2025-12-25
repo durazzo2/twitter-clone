@@ -22,6 +22,7 @@ model User {
   retweets  Retweet[]
   following Follow[]  @relation("UserFollows")
   followers Follow[]  @relation("UserFollowers")
+  Comment   Comment[]
 
   @@index([username])
   @@index([email])
@@ -31,6 +32,7 @@ model Post {
   id        Int      @id @default(autoincrement())
   content   String
   authorId  Int
+  imageUrl  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -38,6 +40,7 @@ model Post {
   author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   likes    Like[]
   retweets Retweet[]
+  Comment  Comment[]
 
   @@index([authorId])
   @@index([createdAt])
@@ -87,4 +90,20 @@ model Follow {
   @@unique([followerId, followingId])
   @@index([followerId])
   @@index([followingId])
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  authorId  Int
+  postId    Int
+  createdAt DateTime @default(now())
+
+  // Relations
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+  @@index([postId])
+  @@index([createdAt])
 }

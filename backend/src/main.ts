@@ -1,25 +1,32 @@
-// src/main.ts
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
+import { existsSync, mkdirSync } from 'fs';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // Enable global validation and data transformation
+  const uploadDir = join(__dirname, '..', 'uploads');
+  if (!existsSync(uploadDir)) {
+    mkdirSync(uploadDir);
+  }
+
+  app.useStaticAssets(uploadDir, {
+    prefix: '/uploads/',
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // Automatically removes properties NOT in your DTO
-      forbidNonWhitelisted: true, // Throws an error if extra properties are sent
-      transform: true, // Critical for 2025: Converts URL/Body strings to DTO types
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
       transformOptions: {
-        enableImplicitConversion: true, // Converts "1" to 1 for IDs automatically
+        enableImplicitConversion: true,
       },
     }),
   );
-
-  // Enable CORS if you plan to connect a frontend later
-  //app.enableCORS();
 
   await app.listen(process.env.PORT ?? 3000);
 }
