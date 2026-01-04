@@ -25,6 +25,20 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @Get('suggestions') // This makes the URL: http://localhost:3000/users/suggestions
+  async getSuggestions(@Req() req) {
+    const userId = req.user.id;
+    // Make sure your service returns a plain array [user1, user2]
+    return this.usersService.getDiscoveryUsers(userId);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('profile/:username')
+  async getProfile(@Param('username') username: string) {
+    return this.usersService.findByUsername(username);
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findOne(id);

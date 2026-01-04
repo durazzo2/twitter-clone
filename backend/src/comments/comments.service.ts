@@ -13,8 +13,8 @@ export class CommentsService {
         post: { connect: { id: postId } },
       },
       include: {
-        author: { select: { username: true, avatarUrl: true } }
-      }
+        author: { select: { username: true, avatarUrl: true } },
+      },
     });
   }
 
@@ -24,5 +24,25 @@ export class CommentsService {
       include: { author: { select: { username: true, avatarUrl: true } } },
       orderBy: { createdAt: 'asc' },
     });
+  }
+
+  async create(postId: number, userId: number, content: string) {
+    const newComment = await this.prisma.comment.create({
+      data: {
+        content,
+        postId,
+        authorId: userId,
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            avatarUrl: true,
+          },
+        },
+      },
+    });
+    return newComment;
   }
 }

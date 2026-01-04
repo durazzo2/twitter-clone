@@ -65,7 +65,6 @@ export class PostsController {
     return this.postsService.create(req.user.id, createPostDto, imageUrl);
   }
 
-  // posts.controller.ts
   @Get()
   // Use a custom logic to allow guests but identify logged-in users
   async findAll(@Req() req) {

@@ -144,4 +144,50 @@ export class UsersService {
       throw error;
     }
   }
+
+  // users.service.ts
+  async getDiscoveryUsers(userId: number) {
+    // 1. Get IDs of people you already follow
+    const following = await this.prisma.follow.findMany({
+      where: { followerId: userId },
+      select: { followingId: true },
+    });
+
+    const followingIds = following.map((f) => f.followingId);
+
+    // 2. Find users who are NOT you and NOT in your following list
+    const users = await this.prisma.user.findMany({
+      where: {
+        id: {
+          notIn: [userId, ...followingIds],
+        },
+      },
+      take: 5,
+      select: {
+        id: true,
+        username: true,
+        avatarUrl: true,
+      },
+    });
+
+    console.log(`Found ${users.length} suggestions for User ${userId}`);
+    return users;
+  }
+
+  async findByUsername(username: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+      select: {
+        id: true,
+        username: true,
+        bio: true,
+        avatarUrl: true,
+        _count: {
+          select: { followers: true, following: true, posts: true },
+        },
+      },
+    });
+    if (!user) throw new NotFoundException('User not found');
+    return user;
+  }
 }
