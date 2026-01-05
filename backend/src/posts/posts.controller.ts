@@ -16,6 +16,7 @@ import {
   ParseFilePipe,
   MaxFileSizeValidator,
   FileTypeValidator,
+  Patch,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -76,8 +77,17 @@ export class PostsController {
   }
 
   @UseGuards(AuthGuard('jwt'))
+  @Patch(':id')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req,
+    @Body('content') content: string,
+  ) {
+    return this.postsService.update(id, req.user.id, content);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Req() req, @Param('id', ParseIntPipe) id: number) {
     return this.postsService.remove(id, req.user.id);
   }

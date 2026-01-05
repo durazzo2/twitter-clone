@@ -7,6 +7,7 @@ import ThemeToggle from "@/app/components/ThemeToggle";
 import InfiniteFeed from "@/app/components/InfiniteFeed";
 import {Search} from "lucide-react"
 import SearchBar from "@/app/components/SearchBar";
+import {redirect} from 'next/navigation';
 
 export default async function FeedPage() {
     const initialPosts = await getFeed(1);
@@ -14,6 +15,12 @@ export default async function FeedPage() {
     const cookieStore = await cookies();
     const token = cookieStore.get("session")?.value;
     let currentUserId: number | null = null;
+
+    const session = cookieStore.get('session');
+
+    if (!session) {
+        redirect('/login');
+    }
 
     if (token) {
         try {

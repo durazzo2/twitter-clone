@@ -6,6 +6,7 @@ import { join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
 import { json, urlencoded } from 'express';
 import * as process from 'node:process';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -20,6 +21,8 @@ async function bootstrap() {
   app.useStaticAssets(uploadDir, {
     prefix: '/uploads/',
   });
+
+  app.use(cookieParser())
 
   app.useGlobalPipes(
     new ValidationPipe({

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 
@@ -29,19 +33,21 @@ export class PostsService {
     const posts = await this.prisma.post.findMany({
       include: {
         author: {
-          select: { id: true, username: true, avatarUrl: true }
+          select: { id: true, username: true, avatarUrl: true },
         },
         _count: {
           select: {
             likes: true,
             Comment: true,
-            retweets: true
+            retweets: true,
           },
         },
-        likes: currentUserId ? {
-          where: { userId: currentUserId },
-          select: { userId: true },
-        } : false,
+        likes: currentUserId
+          ? {
+              where: { userId: currentUserId },
+              select: { userId: true },
+            }
+          : false,
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -54,8 +60,6 @@ export class PostsService {
       isLiked: post.likes && post.likes.length > 0,
     }));
   }
-
-
 
   async findOne(id: number) {
     const post = await this.prisma.post.findUnique({
@@ -87,6 +91,22 @@ export class PostsService {
 
     return this.prisma.post.delete({
       where: { id },
+    });
+  }
+
+  async update(id: number, userId: number, content: string) {
+    const post = await this.prisma.post.findUnique({
+      where: { id },
+    });
+
+    if (!post) throw new NotFoundException('Post not found');
+
+    if (post.authorId !== userId) {
+      throw new ForbiddenException('You can only edit your own posts');
+    }
+    return this.prisma.post.update({
+      where: { id },
+      data: { content },
     });
   }
 }
