@@ -23,8 +23,29 @@ model User {
   followers Follow[]  @relation("UserFollowers")
   Comment   Comment[]
 
+  receivedNotifications Notification[] @relation("ReceivedNotifications")
+  sentNotifications     Notification[] @relation("SentNotifications")
+
   @@index([username])
   @@index([email])
+}
+
+model Notification {
+  id        Int              @id @default(autoincrement())
+  type      NotificationType
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  recipientId Int
+  recipient   User @relation("ReceivedNotifications", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  issuerId Int
+  issuer   User @relation("SentNotifications", fields: [issuerId], references: [id], onDelete: Cascade)
+
+  postId Int?
+  post   Post? @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([recipientId])
 }
 
 model Post {
@@ -35,10 +56,11 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  likes    Like[]
-  retweets Retweet[]
-  Comment  Comment[]
+  author        User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  likes         Like[]
+  retweets      Retweet[]
+  Comment       Comment[]
+  notifications Notification[]
 
   @@index([authorId])
   @@index([createdAt])
@@ -98,4 +120,11 @@ model Comment {
   @@index([authorId])
   @@index([postId])
   @@index([createdAt])
+}
+
+enum NotificationType {
+  LIKE
+  COMMENT
+  FOLLOW
+  RETWEET
 }

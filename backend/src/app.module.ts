@@ -9,6 +9,7 @@ import { FeedModule } from './feed/feed.module';
 import { CommentsModule } from './comments/comments.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { join } from 'path';
     RetweetsModule,
     FeedModule,
     CommentsModule,
+    NotificationsModule
   ],
 })
 export class AppModule {}

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -6,7 +10,11 @@ export class RetweetsService {
   constructor(private prisma: PrismaService) {}
 
   async retweet(userId: number, postId: number) {
-    const post = await this.prisma.post.findUnique({ where: { id: postId } });
+    const post = await this.prisma.post.findUnique({
+      where: { id: postId },
+      select: { authorId: true },
+    });
+
     if (!post) throw new NotFoundException('Post not found');
 
     const existing = await this.prisma.retweet.findUnique({
@@ -16,9 +24,22 @@ export class RetweetsService {
     });
     if (existing) throw new ConflictException('Already retweeted this post');
 
-    return (await this.prisma.retweet.create({
+    const newRetweet = await this.prisma.retweet.create({
       data: { userId, postId },
-    })) as any;
+    });
+
+    if (post.authorId !== userId) {
+      await this.prisma.notification.create({
+        data: {
+          type: 'RETWEET',
+          recipientId: post.authorId,
+          issuerId: userId,
+          postId: postId,
+        },
+      });
+    }
+
+    return newRetweet as any;
   }
 
   async undoRetweet(userId: number, postId: number) {

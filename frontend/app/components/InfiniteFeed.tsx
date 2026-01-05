@@ -127,7 +127,6 @@ export default function InfiniteFeed({initialPosts, currentUserId}: any) {
     return (
         <div className="divide-y divide-gray-200 dark:divide-gray-800 w-full overflow-hidden">
             {posts.map((post: any) => {
-                // Check if the post has been edited (difference > 1 second to avoid DB lag false positives)
                 const isEdited = new Date(post.updatedAt).getTime() > new Date(post.createdAt).getTime() + 1000;
 
                 return (

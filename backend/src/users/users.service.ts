@@ -97,12 +97,13 @@ export class UsersService {
     const followingUser = await this.prisma.user.findUnique({
       where: { id: followingId },
     });
+
     if (!followingUser) {
       throw new NotFoundException(`User #${followingId} not found`);
     }
 
     try {
-      return await this.prisma.follow.create({
+      const follow = await this.prisma.follow.create({
         data: {
           followerId,
           followingId,
@@ -113,6 +114,16 @@ export class UsersService {
           },
         },
       });
+
+      await this.prisma.notification.create({
+        data: {
+          type: 'FOLLOW',
+          recipientId: followingId,
+          issuerId: followerId,
+        },
+      });
+
+      return follow;
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&

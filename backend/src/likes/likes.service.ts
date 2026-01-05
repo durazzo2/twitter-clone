@@ -10,7 +10,11 @@ export class LikesService {
   constructor(private prisma: PrismaService) {}
 
   async likePost(userId: number, postId: number) {
-    const post = await this.prisma.post.findUnique({ where: { id: postId } });
+    const post = await this.prisma.post.findUnique({
+      where: { id: postId },
+      select: { id: true, authorId: true },
+    });
+
     if (!post) throw new NotFoundException('Post not found');
 
     const existing = await this.prisma.like.findUnique({
@@ -18,18 +22,28 @@ export class LikesService {
     });
     if (existing) throw new ConflictException('Post already liked');
 
-    return (await this.prisma.like.create({
+    const newLike = await this.prisma.like.create({
       data: { userId, postId },
-    })) as any;
+    });
+
+    if (post.authorId !== userId) {
+      await this.prisma.notification.create({
+        data: {
+          type: 'LIKE',
+          recipientId: post.authorId,
+          issuerId: userId,
+          postId: postId,
+        },
+      });
+    }
+
+    return newLike;
   }
 
   async unlikePost(userId: number, postId: number) {
     return this.prisma.like.delete({
       where: {
-        userId_postId: {
-          userId: userId,
-          postId: postId,
-        },
+        userId_postId: { userId, postId },
       },
     });
   }
