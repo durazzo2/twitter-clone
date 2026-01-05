@@ -91,4 +91,11 @@ export class PostsController {
   async remove(@Req() req, @Param('id', ParseIntPipe) id: number) {
     return this.postsService.remove(id, req.user.id);
   }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('user/:username')
+  async findByUser(@Param('username') username: string, @Req() req) {
+    // We pass the current user ID to check if the viewer has liked these posts
+    return this.postsService.findByUser(username, req.user?.id);
+  }
 }

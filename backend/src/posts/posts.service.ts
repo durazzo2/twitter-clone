@@ -109,4 +109,44 @@ export class PostsService {
       data: { content },
     });
   }
+
+
+  // Replace your existing findByUser in PostsService with this:
+
+  async findByUser(username: string, currentUserId?: number) {
+    const posts = await this.prisma.post.findMany({
+      where: {
+        OR: [
+          { author: { username } },
+          { retweets: { some: { user: { username } } } }
+        ]
+      },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            avatarUrl: true,
+          },
+        },
+        _count: {
+          select: { likes: true, Comment: true, retweets: true }
+        },
+        // Include likes to check if current viewer liked the post
+        likes: currentUserId
+            ? {
+              where: { userId: currentUserId },
+              select: { userId: true },
+            }
+            : false,
+      },
+    });
+
+    // Map the results to match the structure InfiniteFeed expects
+    return posts.map((post) => ({
+      ...post,
+      isLiked: post.likes && post.likes.length > 0,
+    }));
+  }
 }

@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Heart, MessageCircle, UserPlus, Repeat, ArrowLeft } from "lucide-react";
+import {useEffect, useState} from "react";
+import {Heart, MessageCircle, UserPlus, Repeat, ArrowLeft} from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import {useRouter} from "next/navigation";
 
 export default function NotificationsPage() {
     const [notifications, setNotifications] = useState([]);
@@ -17,14 +17,14 @@ export default function NotificationsPage() {
 
             try {
                 const res = await fetch("http://localhost:3000/notifications", {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: {Authorization: `Bearer ${token}`},
                 });
                 const data = await res.json();
                 setNotifications(data);
 
                 await fetch("http://localhost:3000/notifications/mark-as-read", {
                     method: "PATCH",
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: {Authorization: `Bearer ${token}`},
                 });
             } catch (error) {
                 console.error("Failed to load notifications", error);
@@ -39,15 +39,17 @@ export default function NotificationsPage() {
     if (loading) return <div className="p-20 text-center text-gray-500">Loading...</div>;
 
     return (
-        <div className="max-w-2xl mx-auto min-h-screen border-x border-gray-200 dark:border-gray-800 bg-white dark:bg-black pt-14">
+        <div
+            className="max-w-2xl mx-auto min-h-screen border-x border-gray-200 dark:border-gray-800 bg-white dark:bg-black pt-14">
 
 
-            <div className="sticky top-14 z-40 bg-white/80 dark:bg-black/80 backdrop-blur-md p-4 border-b border-gray-200 dark:border-gray-800 flex items-center gap-4">
+            <div
+                className="sticky top-14 z-40 bg-white/80 dark:bg-black/80 backdrop-blur-md p-4 border-b border-gray-200 dark:border-gray-800 flex items-center gap-4">
                 <button
                     onClick={() => router.back()}
                     className="hover:bg-gray-100 dark:hover:bg-zinc-900 p-2 rounded-full transition-colors"
                 >
-                    <ArrowLeft size={20} />
+                    <ArrowLeft size={20}/>
                 </button>
                 <h1 className="text-xl font-bold">Notifications</h1>
             </div>
@@ -60,22 +62,32 @@ export default function NotificationsPage() {
                         className="p-4 hover:bg-gray-50 dark:hover:bg-zinc-950 flex gap-4 transition-colors block group overflow-hidden"
                     >
                         <div className="mt-1 flex-shrink-0">
-                            {notif.type === 'LIKE' && <Heart className="text-red-500 fill-red-500" size={22} />}
-                            {notif.type === 'FOLLOW' && <UserPlus className="text-blue-500" size={22} />}
-                            {notif.type === 'COMMENT' && <MessageCircle className="text-green-500" size={22} />}
-                            {notif.type === 'RETWEET' && <Repeat className="text-pink-500" size={22} />}
+                            {notif.type === 'LIKE' && <Heart className="text-red-500 fill-red-500" size={22}/>}
+                            {notif.type === 'FOLLOW' && <UserPlus className="text-blue-500" size={22}/>}
+                            {notif.type === 'COMMENT' && <MessageCircle className="text-green-500" size={22}/>}
+                            {notif.type === 'RETWEET' && <Repeat className="text-pink-500" size={22}/>}
                         </div>
 
                         <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                                <img
-                                    src={notif.issuer.avatarUrl || `https://ui-avatars.com/api/?name=${notif.issuer.username}`}
-                                    className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 object-cover"
-                                    alt="Avatar"
-                                />
+                                <div
+                                    className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 overflow-hidden bg-blue-500 flex items-center justify-center text-white text-[10px] font-bold">
+                                    {notif.issuer.avatarUrl ? (
+                                        <img
+                                            src={`http://localhost:3000${notif.issuer.avatarUrl}`}
+                                            className="w-full h-full object-cover"
+                                            alt="Avatar"
+                                            onError={(e) => {
+                                                (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${notif.issuer.username}`;
+                                            }}
+                                        />
+                                    ) : (
+                                        notif.issuer.username.charAt(0).toUpperCase()
+                                    )}
+                                </div>
                                 <span className="font-bold text-sm group-hover:underline truncate">
-                                    @{notif.issuer.username}
-                                </span>
+            @{notif.issuer.username}
+        </span>
                             </div>
 
                             <p className="text-gray-800 dark:text-gray-200 text-sm">
@@ -86,7 +98,8 @@ export default function NotificationsPage() {
                             </p>
 
                             {notif.post && (
-                                <div className="mt-2 p-3 bg-gray-50 dark:bg-zinc-900 rounded-lg border border-gray-100 dark:border-gray-800">
+                                <div
+                                    className="mt-2 p-3 bg-gray-50 dark:bg-zinc-900 rounded-lg border border-gray-100 dark:border-gray-800">
                                     <p className="text-gray-500 text-xs italic break-all line-clamp-2">
                                         "{notif.post.content}"
                                     </p>

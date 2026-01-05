@@ -80,9 +80,16 @@ export default function ProfileFeed({initialPosts, currentUserId, profileUserId,
 
                     <div className="flex gap-4 min-w-0">
                         <Link href={`/${post.author?.username}`} className="flex-shrink-0">
-                            <div
-                                className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center font-bold text-white hover:opacity-90 transition-opacity">
-                                {post.author?.username?.charAt(0).toUpperCase()}
+                            <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center font-bold text-white hover:opacity-90 transition-opacity overflow-hidden border border-gray-100 dark:border-gray-800">
+                                {post.author?.avatarUrl ? (
+                                    <img
+                                        src={`http://localhost:3000${post.author.avatarUrl}`}
+                                        className="w-full h-full object-cover"
+                                        alt={post.author.username}
+                                    />
+                                ) : (
+                                    post.author?.username?.charAt(0).toUpperCase()
+                                )}
                             </div>
                         </Link>
 

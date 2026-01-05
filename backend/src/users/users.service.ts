@@ -11,7 +11,8 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {
+  }
 
   async create(createUserDto: CreateUserDto) {
     const { password, ...userData } = createUserDto;
@@ -156,62 +157,20 @@ export class UsersService {
     }
   }
 
-  async getDiscoveryUsers(userId: number) {
-    const following = await this.prisma.follow.findMany({
-      where: { followerId: userId },
-      select: { followingId: true },
-    });
-
-    const followingIds = following.map((f) => f.followingId);
-
-    const users = await this.prisma.user.findMany({
-      where: {
-        id: {
-          notIn: [userId, ...followingIds],
-        },
-      },
-      take: 5,
-      select: {
-        id: true,
-        username: true,
-        avatarUrl: true,
-      },
-    });
-
-    console.log(`Found ${users.length} suggestions for User ${userId}`);
-    return users;
-  }
-
-  async findByUsername(username: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { username },
-      select: {
-        id: true,
-        username: true,
-        bio: true,
-        avatarUrl: true,
-        _count: {
-          select: { followers: true, following: true, posts: true },
-        },
-      },
-    });
-    if (!user) throw new NotFoundException('User not found');
-    return user;
-  }
-
-  async searchUsers(query: string) {
+  async getSuggestions(userId: number) {
     return this.prisma.user.findMany({
       where: {
-        username: {
-          contains: query,
-          mode: 'insensitive',
+        NOT: { id: userId },
+        followers: {
+          none: { followerId: userId },
         },
       },
+      take: 3,
       select: {
         id: true,
         username: true,
+        avatarUrl: true,
       },
-      take: 5,
     });
   }
 }
