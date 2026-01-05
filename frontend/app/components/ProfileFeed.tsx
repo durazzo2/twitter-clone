@@ -69,7 +69,6 @@ export default function ProfileFeed({initialPosts, currentUserId, profileUserId,
             {posts.map((post: any) => (
                 <article key={post.id}
                          className="p-4 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors w-full overflow-hidden">
-                    {/* Retweet Label */}
                     {post.isProfileUserRetweet && (
                         <div className="flex items-center gap-2 text-gray-500 text-[13px] font-bold ml-12 mb-2">
                             <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
@@ -87,7 +86,6 @@ export default function ProfileFeed({initialPosts, currentUserId, profileUserId,
                             </div>
                         </Link>
 
-                        {/* min-w-0 added here to prevent content from expanding parent */}
                         <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-2">
                                 <div className="flex items-center gap-1 min-w-0">
@@ -107,7 +105,6 @@ export default function ProfileFeed({initialPosts, currentUserId, profileUserId,
                                 )}
                             </div>
 
-                            {/* THE FIX: break-words and whitespace-pre-wrap */}
                             <p className="mt-1 text-[15px] whitespace-pre-wrap break-words overflow-hidden leading-normal">
                                 {post.content}
                             </p>

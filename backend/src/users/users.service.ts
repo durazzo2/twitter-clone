@@ -187,4 +187,20 @@ export class UsersService {
     if (!user) throw new NotFoundException('User not found');
     return user;
   }
+
+  async searchUsers(query: string) {
+    return this.prisma.user.findMany({
+      where: {
+        username: {
+          contains: query,
+          mode: 'insensitive',
+        },
+      },
+      select: {
+        id: true,
+        username: true,
+      },
+      take: 5,
+    });
+  }
 }

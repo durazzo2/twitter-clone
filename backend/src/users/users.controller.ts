@@ -10,6 +10,7 @@ import {
   Param,
   ParseIntPipe,
   ForbiddenException,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -30,6 +31,13 @@ export class UsersController {
   async getSuggestions(@Req() req) {
     const userId = req.user.id;
     return this.usersService.getDiscoveryUsers(userId);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('search')
+  async search(@Query('query') query: string) {
+    if (!query || query.length < 2) return [];
+    return this.usersService.searchUsers(query);
   }
 
   @UseGuards(AuthGuard('jwt'))

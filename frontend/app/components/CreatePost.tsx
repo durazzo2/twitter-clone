@@ -29,7 +29,6 @@ export default function CreatePost() {
                     {state?.error && <p className="text-red-500 text-sm mb-2">{state.error}</p>}
 
                     <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-900">
-                        {/* Media Upload Icon Button */}
                         <label className="cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 p-2 rounded-full transition-colors">
                             <Image/>
                             <input

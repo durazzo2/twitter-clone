@@ -1,17 +1,16 @@
 "use client";
 
-import { useActionState } from "react";
-import { register } from "@/app/lib/actions";
+import {useActionState} from "react";
+import {register} from "@/app/lib/actions";
 import Link from "next/link";
 
 export default function RegisterPage() {
     const [state, formAction, isPending] = useActionState(register, null);
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-[#15202b] px-4">
-            <div className="w-full max-w-md bg-white dark:bg-black p-8 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800">
-
-                {/* Logo or Icon */}
+        <div className="flex min-h-screen items-center justify-center px-4">
+            <div
+                className="w-full max-w-md bg-white dark:bg-black p-8 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800">
                 <div className="flex justify-center mb-6">
                     <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-2xl font-bold">T</span>
@@ -66,7 +65,8 @@ export default function RegisterPage() {
                     </div>
 
                     {state?.error && (
-                        <div className="p-3 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm rounded-lg text-center font-medium">
+                        <div
+                            className="p-3 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm rounded-lg text-center font-medium">
                             {state.error}
                         </div>
                     )}

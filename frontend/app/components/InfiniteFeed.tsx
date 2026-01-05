@@ -56,12 +56,10 @@ export default function InfiniteFeed({ initialPosts, currentUserId }: any) {
     };
 
     return (
-        /* w-full and overflow-hidden ensures the container stays within the main column borders */
         <div className="divide-y divide-gray-200 dark:divide-gray-800 w-full overflow-hidden">
             {posts.map((post: any) => (
                 <article key={post.id} className="p-5 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors w-full overflow-hidden">
 
-                    {/* Synchronized Retweet Label style from Profile */}
                     {post.isRetweetedByCurrentUser && (
                         <div className="flex items-center gap-2 text-gray-500 text-[13px] font-bold ml-14 mb-2">
                             <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
@@ -71,7 +69,6 @@ export default function InfiniteFeed({ initialPosts, currentUserId }: any) {
                         </div>
                     )}
 
-                    {/* min-w-0 on this flex container is what stops the 'DADADA' overflow */}
                     <div className="flex gap-4 min-w-0">
                         <Link href={`/${post.author?.username}`} className="flex-shrink-0">
                             <div className="w-14 h-14 bg-blue-500 rounded-full flex items-center justify-center font-bold text-white text-xl hover:opacity-90 transition-opacity">
@@ -79,7 +76,6 @@ export default function InfiniteFeed({ initialPosts, currentUserId }: any) {
                             </div>
                         </Link>
 
-                        {/* This div MUST have min-w-0 to allow the text inside to break */}
                         <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-2">
                                 <div className="flex items-center gap-1 min-w-0 overflow-hidden">
@@ -96,7 +92,6 @@ export default function InfiniteFeed({ initialPosts, currentUserId }: any) {
                                 )}
                             </div>
 
-                            {/* Applied 17px font and break-words to match Profile style */}
                             <p className="mt-2 text-[17px] leading-relaxed whitespace-pre-wrap break-words overflow-hidden">
                                 {post.content}
                             </p>
