@@ -12,7 +12,6 @@ interface LightboxProps {
 
 export default function ImageLightbox({ src, isOpen, onClose }: LightboxProps) {
 
-    // Handle Keyboard Shortcuts (Esc key)
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === "Escape") {
@@ -22,7 +21,6 @@ export default function ImageLightbox({ src, isOpen, onClose }: LightboxProps) {
 
         if (isOpen) {
             window.addEventListener("keydown", handleKeyDown);
-            // Optional: Prevent background scrolling when image is open
             document.body.style.overflow = "hidden";
         }
 
@@ -55,7 +53,7 @@ export default function ImageLightbox({ src, isOpen, onClose }: LightboxProps) {
                         exit={{ scale: 0.8, opacity: 0 }}
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
                         className="relative max-w-[95vw] max-h-[95vh]"
-                        onClick={(e) => e.stopPropagation()} // Stop click from closing when clicking image itself
+                        onClick={(e) => e.stopPropagation()}
                     >
                         <img
                             src={src}

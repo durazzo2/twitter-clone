@@ -11,11 +11,9 @@ export default function LoginPage() {
 
     useEffect(() => {
         if (state?.success) {
-            // Save to local storage so the Navbar can see it
             localStorage.setItem("username", state.username);
             localStorage.setItem("token", state.token);
 
-            // Redirect manually since we are handling state in the component
             router.push("/feed");
             router.refresh();
         }
@@ -23,10 +21,9 @@ export default function LoginPage() {
 
 
 return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-[#15202b] px-4">
+    <div className="flex min-h-screen items-center justify-center px-4">
         <div
             className="w-full max-w-md bg-white dark:bg-black p-8 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800">
-            {/* Logo or Icon */}
             <div className="flex justify-center mb-6">
                 <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
                     <span className="text-white text-2xl font-bold">T</span>

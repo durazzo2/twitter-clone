@@ -14,7 +14,7 @@ export default function FollowButton({
     const [isPending, startTransition] = useTransition();
 
     const handleAction = async () => {
-        // Optimistic toggle
+
         const nextState = !isFollowing;
         setIsFollowing(nextState);
 
@@ -22,10 +22,10 @@ export default function FollowButton({
             try {
                 const result = await toggleFollow(userId, isFollowing);
                 if (result?.error) {
-                    setIsFollowing(!nextState); // Rollback
+                    setIsFollowing(!nextState);
                 }
             } catch (e) {
-                setIsFollowing(!nextState); // Rollback
+                setIsFollowing(!nextState);
             }
         });
     };

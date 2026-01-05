@@ -1,13 +1,15 @@
 "use client";
-import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import {useTheme} from "next-themes";
+import {useEffect, useState} from "react";
+import {Sun, Moon} from "lucide-react"
+
 
 export default function ThemeToggle() {
-    const { theme, setTheme } = useTheme();
+    const {theme, setTheme} = useTheme();
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => setMounted(true), []);
-    if (!mounted) return <div className="p-5" />; // Placeholder to avoid layout shift
+    if (!mounted) return <div className="p-5"/>;
 
     return (
         <button
@@ -16,9 +18,17 @@ export default function ThemeToggle() {
             title="Toggle Theme"
         >
             {theme === "dark" ? (
-                <span className="text-xl">☀️</span>
+                <Sun
+                    className="text-amber-400 hover:text-amber-300 transition-all duration-300"
+                    size={20}
+                    fill="currentColor"
+                />
             ) : (
-                <span className="text-xl">🌙</span>
+                <Moon
+                    className="text-slate-700 hover:text-blue-600 transition-all duration-300"
+                    size={20}
+                    fill="currentColor"
+                />
             )}
         </button>
     );

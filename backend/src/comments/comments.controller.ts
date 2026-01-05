@@ -13,19 +13,19 @@ import { AuthGuard } from '@nestjs/passport';
 import { CreateCommentDto } from './dto/create-comment.dto';
 
 
-@Controller('posts/:postId/comments') // :postId is defined here once
+@Controller('posts/:postId/comments')
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
-  @Get() // Remove ':postId' from here
+  @Get()
   async getComments(@Param('postId', ParseIntPipe) postId: number) {
     return this.commentsService.findByPostId(postId);
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @Post() // Remove ':postId' from here
+  @Post()
   async create(
-    @Param('postId', ParseIntPipe) postId: number, // NestJS still gets it from the Controller path
+    @Param('postId', ParseIntPipe) postId: number,
     @Req() req,
     @Body() createCommentDto: CreateCommentDto,
   ) {

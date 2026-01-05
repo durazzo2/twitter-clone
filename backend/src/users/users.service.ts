@@ -145,9 +145,7 @@ export class UsersService {
     }
   }
 
-  // users.service.ts
   async getDiscoveryUsers(userId: number) {
-    // 1. Get IDs of people you already follow
     const following = await this.prisma.follow.findMany({
       where: { followerId: userId },
       select: { followingId: true },
@@ -155,7 +153,6 @@ export class UsersService {
 
     const followingIds = following.map((f) => f.followingId);
 
-    // 2. Find users who are NOT you and NOT in your following list
     const users = await this.prisma.user.findMany({
       where: {
         id: {

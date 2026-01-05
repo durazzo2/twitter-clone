@@ -9,14 +9,11 @@ export default async function ProfilePage({ params }: { params: { username: stri
 
     let user;
     try {
-        // This hits your NestJS /users/profile/:username
         user = await getUserProfile(username);
     } catch (e) {
-        // If NestJS returns 404, Next.js shows the 404 page
         return notFound();
     }
 
-    // Initial load of posts for this specific user
     const initialPosts = await getUserPosts(user.id, 1);
 
     const cookieStore = await cookies();
@@ -32,7 +29,6 @@ export default async function ProfilePage({ params }: { params: { username: stri
 
     return (
         <main className="max-w-2xl mx-auto border-x border-gray-200 dark:border-gray-800 min-h-screen bg-white dark:bg-black">
-            {/* Profile Header UI */}
             <div className="h-48 bg-gray-200 dark:bg-gray-800" />
 
             <div className="px-4 pb-4 border-b border-gray-100 dark:border-gray-900">
@@ -63,7 +59,6 @@ export default async function ProfilePage({ params }: { params: { username: stri
                 </div>
             </div>
 
-            {/* The Custom Profile Feed */}
             <ProfileFeed
                 initialPosts={initialPosts}
                 currentUserId={currentUserId}

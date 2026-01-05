@@ -16,7 +16,6 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
   posts     Post[]
   likes     Like[]
   retweets  Retweet[]
@@ -36,7 +35,6 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
   author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   likes    Like[]
   retweets Retweet[]
@@ -47,12 +45,10 @@ model Post {
 }
 
 model Like {
-  // id        Int      @id @default(autoincrement())
   userId    Int
   postId    Int
   createdAt DateTime @default(now())
 
-  // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
@@ -62,12 +58,10 @@ model Like {
 }
 
 model Retweet {
-  // id        Int      @id @default(autoincrement())
   userId    Int
   postId    Int
   createdAt DateTime @default(now())
 
-  // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
@@ -83,7 +77,6 @@ model Follow {
   followingId Int
   createdAt   DateTime @default(now())
 
-  // Relations
   follower  User @relation("UserFollows", fields: [followerId], references: [id], onDelete: Cascade)
   following User @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
 
@@ -99,7 +92,6 @@ model Comment {
   postId    Int
   createdAt DateTime @default(now())
 
-  // Relations
   author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
   post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 

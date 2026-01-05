@@ -3,6 +3,6 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
     const cookieStore = await cookies();
-    const token = cookieStore.get("session")?.value; // or "token" depending on your cookie name
+    const token = cookieStore.get("session")?.value;
     return NextResponse.json({ token });
 }

@@ -26,10 +26,9 @@ export class UsersController {
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @Get('suggestions') // This makes the URL: http://localhost:3000/users/suggestions
+  @Get('suggestions')
   async getSuggestions(@Req() req) {
     const userId = req.user.id;
-    // Make sure your service returns a plain array [user1, user2]
     return this.usersService.getDiscoveryUsers(userId);
   }
 

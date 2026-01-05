@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { toggleRetweet } from "@/app/lib/actions";
+import {useState, useTransition} from "react";
+import {toggleRetweet} from "@/app/lib/actions";
+import {Repeat2} from "lucide-react"
 
 export default function RetweetButton({
                                           postId,
@@ -17,7 +18,6 @@ export default function RetweetButton({
     const [isPending, startTransition] = useTransition();
 
     const handleRetweet = async () => {
-        // Optimistic Update
         const nextState = !isRetweeted;
         setIsRetweeted(nextState);
         setCount(prev => nextState ? prev + 1 : prev - 1);
@@ -25,7 +25,6 @@ export default function RetweetButton({
         startTransition(async () => {
             const result = await toggleRetweet(postId, isRetweeted);
             if (result?.error) {
-                // Rollback on error
                 setIsRetweeted(!nextState);
                 setCount(prev => !nextState ? prev + 1 : prev - 1);
             }
@@ -36,13 +35,12 @@ export default function RetweetButton({
         <button
             onClick={handleRetweet}
             disabled={isPending}
-            className={`flex items-center gap-1 transition-colors hover:text-green-500 ${
-                isRetweeted ? "text-green-500" : "text-gray-500"
-            }`}
+            className={`flex items-center gap-1 transition-colors  ${
+                isRetweeted
+                    ? "text-blue-500"
+                    : "text-gray-500/60 hover:text-blue-300"}`}
         >
-            <span className={`p-2 rounded-full hover:bg-green-50 dark:hover:bg-green-900/20`}>
-                🔄
-            </span>
+            <Repeat2/>
             <span className="text-xs">{count}</span>
         </button>
     );

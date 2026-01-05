@@ -10,7 +10,6 @@ export async function getFeed(page: number = 1) {
     if (!token) return [];
 
     try {
-        // Pointing directly to your FeedController
         const res = await fetch(`${API_URL}/feed?page=${page}`, {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -26,7 +25,7 @@ export async function getFeed(page: number = 1) {
         }
 
         const result = await res.json();
-        return result.data || result; // Handle both wrapped and unwrapped responses
+        return result.data || result;
     } catch (error) {
         if (error instanceof Error && error.message === 'NEXT_REDIRECT') throw error;
         console.error("Network error fetching feed:", error);
@@ -40,22 +39,20 @@ export async function getSuggestedUsers() {
 
     const res = await fetch(`${API_URL}/users/suggestions`, {
         headers: {Authorization: `Bearer ${token}`},
-        next: {revalidate: 60} // Cache for 1 minute
+        next: {revalidate: 60}
     });
     return res.json();
 }
 
 
-// 1. Get user details (Bio, Followers, etc.)
 
 export async function getUserProfile(username: string) {
-    // If your backend has @UseGuards, you NEED to send the token here too!
     const cookieStore = await cookies();
     const token = cookieStore.get("session")?.value;
 
     const res = await fetch(`${API_URL}/users/profile/${username}`, {
         headers: {
-            Authorization: `Bearer ${token}` // Add this line if using @UseGuards
+            Authorization: `Bearer ${token}`
         },
         cache: 'no-store'
     });
@@ -63,7 +60,6 @@ export async function getUserProfile(username: string) {
     return res.json();
 }
 
-// 2. Get user's specific posts (The one that hits FeedService.getUserProfileFeed)
 export async function getUserPosts(userId: number, page: number = 1) {
     const cookieStore = await cookies();
     const token = cookieStore.get("session")?.value;

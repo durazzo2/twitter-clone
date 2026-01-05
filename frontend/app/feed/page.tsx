@@ -5,12 +5,11 @@ import { cookies } from "next/headers";
 import { jwtDecode } from "jwt-decode";
 import ThemeToggle from "@/app/components/ThemeToggle";
 import InfiniteFeed from "@/app/components/InfiniteFeed";
+import {Search} from "lucide-react"
 
 export default async function FeedPage() {
-    // 1. Fetch initial posts (Page 1)
     const initialPosts = await getFeed(1);
 
-    // 2. Auth Logic - Decoding the JWT to get the current user ID
     const cookieStore = await cookies();
     const token = cookieStore.get("session")?.value;
     let currentUserId: number | null = null;
@@ -25,16 +24,8 @@ export default async function FeedPage() {
     }
 
     return (
-        /* The max-w-6xl container keeps the whole app centered */
         <div className="flex justify-center min-h-screen bg-white dark:bg-black text-black dark:text-white max-w-6xl mx-auto">
 
-            {/* LEFT/CENTER COLUMN (The Main Feed)
-                - w-full: Takes up available space up to the max-width.
-                - max-w-2xl: The standard Twitter feed width.
-                - border-x: These are the vertical lines you saw.
-                - min-w-0: CRITICAL FIX. Allows the column to shrink and
-                  forces long text to wrap instead of pushing the border.
-            */}
             <main className="w-full max-w-2xl border-x border-gray-200 dark:border-gray-800 min-w-0 flex flex-col">
 
                 <header className="sticky top-0 z-10 bg-white/80 dark:bg-black/80 backdrop-blur-md p-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
@@ -42,13 +33,9 @@ export default async function FeedPage() {
                     <ThemeToggle />
                 </header>
 
-                {/* Post creation area */}
                 <CreatePost />
 
-                {/* The Scrollable Feed
-                    Ensure the InfiniteFeed inside also uses break-words
-                    on the <p> tags to prevent layout breaking.
-                */}
+
                 <div className="flex-1 w-full">
                     <InfiniteFeed
                         initialPosts={initialPosts || []}
@@ -57,25 +44,20 @@ export default async function FeedPage() {
                 </div>
             </main>
 
-            {/* RIGHT COLUMN (Discovery/Search)
-                Hidden on mobile, appears on large screens (lg:block)
-            */}
+
             <aside className="hidden lg:block w-[350px] p-4">
                 <div className="sticky top-4 space-y-4">
-                    {/* Search Bar */}
                     <div className="relative">
                         <input
                             type="text"
                             placeholder="Search"
                             className="w-full bg-gray-100 dark:bg-gray-900 rounded-full py-2 px-10 focus:outline-none focus:ring-1 focus:ring-blue-500 border border-transparent focus:bg-white dark:focus:bg-black transition-all"
                         />
-                        <span className="absolute left-4 top-2.5 text-gray-500">🔍</span>
+                        <Search className="absolute left-4 top-3.5 text-gray-500" size={18}/>
                     </div>
 
-                    {/* Sidebar Components */}
                     <DiscoverySidebar />
 
-                    {/* Footer Links */}
                     <div className="px-4 text-xs text-gray-500 space-x-2">
                         <span className="hover:underline cursor-pointer">Terms of Service</span>
                         <span className="hover:underline cursor-pointer">Privacy Policy</span>

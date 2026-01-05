@@ -16,7 +16,6 @@ export default function Navbar() {
 
     const handleLogout = () => {
         localStorage.clear();
-        // Clear the session cookie by setting expiry to past
         document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         router.push("/login");
         router.refresh();

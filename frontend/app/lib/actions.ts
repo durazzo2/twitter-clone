@@ -6,9 +6,7 @@ import {revalidatePath} from "next/cache"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
-/**
- * REGISTER ACTION
- */
+
 export async function register(prevState: any, formData: FormData) {
     const username = formData.get("username");
     const email = formData.get("email");
@@ -39,14 +37,10 @@ export async function register(prevState: any, formData: FormData) {
         return {error: "Could not connect to the server."};
     }
 
-    // If successful, redirect to login
     redirect("/login");
 }
 
-/**
- * LOGIN ACTION
- */
-// LOGIN ACTION
+
 export async function login(prevState: any, formData: FormData) {
     const email = formData.get("email");
     const password = formData.get("password");
@@ -65,7 +59,7 @@ export async function login(prevState: any, formData: FormData) {
         }
 
         const token = data.access_token;
-        const username = data.user.username; // Extract username from response
+        const username = data.user.username;
 
         const cookieStore = await cookies();
         cookieStore.set("session", token, {
@@ -76,7 +70,6 @@ export async function login(prevState: any, formData: FormData) {
             maxAge: 60 * 60 * 24 * 7,
         });
 
-        // RETURN this data so the LoginPage can save it to localStorage
         return {
             success: true,
             username: username,
@@ -96,14 +89,12 @@ export async function createPost(prevState: any, formData: FormData) {
     const cleanData = new FormData();
 
     const content = formData.get("content");
-    const image = formData.get("image") as File; // Cast to File to check properties
+    const image = formData.get("image") as File;
 
-    // Only append content if it exists
     if (content) {
         cleanData.append("content", content as string);
     }
 
-    // ONLY append the image if it is a real file with content
     if (image && image.size > 0) {
         cleanData.append("image", image);
     }
@@ -144,8 +135,6 @@ export async function toggleLike(postId: number, isLiked: boolean) {
         if (!response.ok) {
             const errorData = await response.json();
 
-            // If the error is 409 (already liked) or 404 (already unliked),
-            // just revalidate and pretend it worked to sync the UI.
             if (response.status === 409 || response.status === 404) {
                 revalidatePath("/feed");
                 return;
@@ -165,7 +154,6 @@ export async function toggleFollow(targetUserId: number, isFollowing: boolean) {
     const cookieStore = await cookies();
     const token = cookieStore.get("session")?.value;
 
-    // Check NestJS route: @Post(':id/follow') inside @Controller('users')
     const url = `${API_URL}/users/${targetUserId}/follow`;
     const method = isFollowing ? "DELETE" : "POST";
 

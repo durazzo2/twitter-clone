@@ -21,7 +21,6 @@ export const metadata: Metadata = {
 };
 export default function RootLayout({children}: { children: React.ReactNode }) {
     return (
-        // suppressHydrationWarning is required for next-themes
         <html lang="en" suppressHydrationWarning>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {/* Wrap everything in the ThemeProvider */}

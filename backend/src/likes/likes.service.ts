@@ -23,20 +23,9 @@ export class LikesService {
     })) as any;
   }
 
-  // async unlikePost(userId: number, postId: number) {
-  //   const existing = await this.prisma.like.findUnique({
-  //     where: { userId_postId: { userId, postId } },
-  //   });
-  //   if (!existing) throw new NotFoundException('Like not found');
-  //
-  //   return await this.prisma.like.delete({
-  //     where: { userId_postId: { userId, postId } },
-  //   });
-  // }
   async unlikePost(userId: number, postId: number) {
     return this.prisma.like.delete({
       where: {
-        // Prisma uses this combined name for your composite @id
         userId_postId: {
           userId: userId,
           postId: postId,

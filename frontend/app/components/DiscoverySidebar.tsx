@@ -5,16 +5,13 @@ export default async function DiscoverySidebar() {
     let suggestions = [];
 
     try {
-// Inside DiscoverySidebar component
         const response = await getSuggestedUsers();
-        console.log("CLIENT SIDE DATA:", response); // Look at your terminal!        // Check if response is the array, or if it's wrapped in a 'data' property
+        console.log("CLIENT SIDE DATA:", response);
         suggestions = Array.isArray(response) ? response : (response?.data || []);
     } catch (error) {
         console.error("Failed to fetch suggestions:", error);
         suggestions = [];
     }
-
-    // If no suggestions, don't show the box at all
     if (suggestions.length === 0) return null;
 
     return (
