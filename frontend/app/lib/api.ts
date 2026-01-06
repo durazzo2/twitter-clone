@@ -33,6 +33,15 @@ export async function getFeed(page: number = 1) {
     }
 }
 
+async function getAuthToken() {
+    if (typeof window === "undefined") {
+        const { cookies } = await import("next/headers");
+        const cookieStore = await cookies();
+        return cookieStore.get("session")?.value;
+    }
+    return null;
+}
+
 export async function getSuggestedUsers() {
     const cookieStore = await cookies();
     const token = cookieStore.get("session")?.value;

@@ -10,7 +10,7 @@ export default function ProfileHeader({user, currentUserId}: any) {
     return (
         <div className="px-4 pb-4 border-b border-gray-100 dark:border-gray-900">
             <div className="relative flex justify-between items-end -mt-16">
-                {/* Avatar */}
+
                 <div
                     className="w-32 h-32 bg-blue-500 rounded-full border-4 border-white dark:border-black flex items-center justify-center text-4xl font-bold text-white uppercase overflow-hidden">
                     {user.avatarUrl ? (
