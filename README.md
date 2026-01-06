@@ -18,6 +18,7 @@ cd twitter-clone
 cd backend
 npm install
 cp .env.example .env   
+npm run jwt-key
 docker compose up -d   # must run before prisma
 npx prisma generate
 npx prisma migrate dev
