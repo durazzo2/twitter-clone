@@ -95,7 +95,6 @@ export class PostsController {
   @UseGuards(AuthGuard('jwt'))
   @Get('user/:username')
   async findByUser(@Param('username') username: string, @Req() req) {
-    // We pass the current user ID to check if the viewer has liked these posts
     return this.postsService.findByUser(username, req.user?.id);
   }
 }

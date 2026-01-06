@@ -111,7 +111,6 @@ export class PostsService {
   }
 
 
-  // Replace your existing findByUser in PostsService with this:
 
   async findByUser(username: string, currentUserId?: number) {
     const posts = await this.prisma.post.findMany({
@@ -133,7 +132,6 @@ export class PostsService {
         _count: {
           select: { likes: true, Comment: true, retweets: true }
         },
-        // Include likes to check if current viewer liked the post
         likes: currentUserId
             ? {
               where: { userId: currentUserId },
@@ -143,7 +141,6 @@ export class PostsService {
       },
     });
 
-    // Map the results to match the structure InfiniteFeed expects
     return posts.map((post) => ({
       ...post,
       isLiked: post.likes && post.likes.length > 0,

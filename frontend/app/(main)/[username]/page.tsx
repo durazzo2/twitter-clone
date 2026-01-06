@@ -1,6 +1,6 @@
 import { getUserProfile, getUserPosts } from "@/app/lib/api";
 import ProfileFeed from "@/app/components/ProfileFeed";
-import ProfileHeader from "@/app/components/ProfileHeader"; // We will create this
+import ProfileHeader from "@/app/components/ProfileHeader";
 import { cookies } from "next/headers";
 import { jwtDecode } from "jwt-decode";
 import { notFound } from "next/navigation";

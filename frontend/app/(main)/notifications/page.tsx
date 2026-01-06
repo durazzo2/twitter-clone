@@ -65,7 +65,7 @@ export default function NotificationsPage() {
                             {notif.type === 'LIKE' && <Heart className="text-red-500 fill-red-500" size={22}/>}
                             {notif.type === 'FOLLOW' && <UserPlus className="text-blue-500" size={22}/>}
                             {notif.type === 'COMMENT' && <MessageCircle className="text-green-500" size={22}/>}
-                            {notif.type === 'RETWEET' && <Repeat className="text-pink-500" size={22}/>}
+                            {notif.type === 'RETWEET' && <Repeat className="text-blue-500" size={22}/>}
                         </div>
 
                         <div className="flex-1 min-w-0">
