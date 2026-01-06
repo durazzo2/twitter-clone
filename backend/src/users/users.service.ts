@@ -11,8 +11,7 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {
-  }
+  constructor(private prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
     const { password, ...userData } = createUserDto;
@@ -157,7 +156,7 @@ export class UsersService {
     }
   }
 
-  async getSuggestions(userId: number) {
+  async getDiscoveryUsers(userId: number) {
     return this.prisma.user.findMany({
       where: {
         NOT: { id: userId },
@@ -172,5 +171,49 @@ export class UsersService {
         avatarUrl: true,
       },
     });
+  }
+
+  async searchUsers(query: string) {
+    return this.prisma.user.findMany({
+      where: {
+        OR: [
+          { username: { contains: query, mode: 'insensitive' } },
+          { bio: { contains: query, mode: 'insensitive' } },
+        ],
+      },
+      take: 10,
+      select: {
+        id: true,
+        username: true,
+        avatarUrl: true,
+        bio: true,
+      },
+    });
+  }
+
+  async findByUsername(username: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+      select: {
+        id: true,
+        username: true,
+        avatarUrl: true,
+        bio: true,
+        createdAt: true,
+        _count: {
+          select: {
+            followers: true,
+            following: true,
+            posts: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User @${username} not found`);
+    }
+
+    return user;
   }
 }
